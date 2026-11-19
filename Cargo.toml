@@ -1,0 +1,109 @@
+[package]
+name = "senano"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+description = "seNano - a Fresh-like terminal text editor with optional encryption and a sandboxed core"
+# The full text lives in the repository root as `Hippocratic License.md`
+# (Hippocratic License 3.0, bds-eco-mil-my-soc-sup-sv-tal-usta).
+license-file = "Hippocratic License.md"
+default-run = "senano"
+
+[[bin]]
+name = "senano"
+path = "src/main.rs"
+
+[lib]
+name = "senano"
+path = "src/lib.rs"
+
+[features]
+default = ["treesitter", "clipboard"]
+# Tree-sitter based diagnostics for a handful of languages.
+treesitter = [
+    "dep:tree-sitter",
+    "dep:tree-sitter-c",
+    "dep:tree-sitter-python",
+    "dep:tree-sitter-rust",
+    "dep:tree-sitter-asm",
+    "dep:tree-sitter-bash",
+    "dep:tree-sitter-json",
+]
+# System clipboard integration (best effort; falls back to the internal register).
+clipboard = ["dep:arboard"]
+# Landlock filesystem jail for spawned processes.
+landlock = ["dep:landlock"]
+
+[dependencies]
+# --- TUI ---
+ratatui = "0.29"
+crossterm = "0.28"
+unicode-width = "0.2"
+# --- syntax highlighting ---
+syntect = { version = "5", default-features = false, features = ["default-fancy"] }
+# --- crypto ---
+zeroize = { version = "1.8", features = ["derive"] }
+chacha20poly1305 = { version = "0.10", features = ["reduced-round"] }
+aes-gcm = "0.10"
+argon2 = "0.5"
+rand = "0.8"
+hkdf = "0.12"
+sha2 = "0.10"
+sha1 = "0.10"
+md-5 = "0.10"
+xxhash-rust = { version = "0.8", features = ["xxh32", "xxh64", "xxh3"] }
+hex = "0.4"
+base64 = "0.22"
+age = "0.11"
+bech32 = "0.11"
+x25519-dalek = { version = "2", features = ["static_secrets"] }
+ed25519-dalek = { version = "2" }
+# --- serialization: Apache Avro everywhere ---
+apache-avro = { version = "0.20", default-features = false }
+flate2 = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+# --- misc ---
+dirs = "5"
+thiserror = "2"
+libc = "0.2"
+uuid = { version = "1", features = ["v4"] }
+crossbeam-channel = "0.5"
+arboard = { version = "3", optional = true }
+landlock = { version = "0.4", optional = true }
+
+[dependencies.tree-sitter]
+version = "0.25"
+optional = true
+
+[dependencies.tree-sitter-c]
+version = "0.23"
+optional = true
+
+[dependencies.tree-sitter-python]
+version = "0.23"
+optional = true
+
+[dependencies.tree-sitter-rust]
+version = "0.23"
+optional = true
+
+[dependencies.tree-sitter-asm]
+version = "0.24"
+optional = true
+
+[dependencies.tree-sitter-bash]
+version = "0.25"
+optional = true
+
+[dependencies.tree-sitter-json]
+version = "0.24"
+optional = true
+
+[profile.release]
+opt-level = "z"
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+strip = true
